@@ -1,0 +1,73 @@
+# RAGFuzz Requirements
+# Python 3.8+ minimum, Python 3.11+ recommended for native tomllib support
+# Compatible with AFL++ Python mutator interface
+
+# ============================================================================
+# CORE DEPENDENCIES (Required)
+# ============================================================================
+
+# LLM Integration - for RAG-based seed generation (tools/rag_seedgen.py)
+# Supports both modern Responses API and legacy ChatCompletion API
+openai>=1.40.0
+
+# TOML Configuration - for config file parsing (tools/rag_seedgen.py)
+# tomli is needed for Python < 3.11 (3.11+ has native tomllib)
+tomli>=2.0.0; python_version < "3.11"
+tomlkit>=0.12.0
+
+# ============================================================================
+# OPTIONAL DEPENDENCIES - Statistics & Visualization
+# ============================================================================
+
+# Visualization - for fuzzing statistics graphs (tools/eval.py)
+# Uncomment if you need to generate PNG charts
+# matplotlib>=3.5.0
+
+# ============================================================================
+# OPTIONAL DEPENDENCIES - Advanced RAG Features
+# ============================================================================
+
+# RAG/Vector DB - for building semantic indexes (rag/index/build_index.py)
+# Uncomment these if you want to use the advanced RAG indexing features
+# langchain-community>=0.0.20
+# langchain-text-splitters>=0.0.1
+# langchain-openai>=0.0.5
+# faiss-cpu>=1.7.4
+
+# Note: Use faiss-gpu instead of faiss-cpu if you have CUDA support
+# faiss-gpu>=1.7.4
+
+# ============================================================================
+# DEVELOPMENT DEPENDENCIES (Optional)
+# ============================================================================
+
+# Code quality tools (uncomment if needed)
+# pytest>=7.0.0
+# black>=23.0.0
+# flake8>=6.0.0
+
+# ============================================================================
+# INSTALLATION NOTES
+# ============================================================================
+#
+# Basic installation (LLM + fuzzing):
+#   pip install -r requirements.txt
+#
+# With visualization:
+#   pip install -r requirements.txt matplotlib
+#
+# With advanced RAG features:
+#   pip install -r requirements.txt langchain-community langchain-text-splitters langchain-openai faiss-cpu
+#
+# For Python < 3.11, tomli will be automatically installed
+#
+# AFL++ Compatibility:
+#   - Ensure you're using Python 3.8+ (3.11+ recommended)
+#   - The mutators (mutators/*.py) use only standard library for AFL++ compatibility
+#   - Set PYTHONPATH before running: export PYTHONPATH="$PWD"
+#
+# Known Issues:
+#   - If you encounter AFL++ Python mutator import errors, ensure:
+#     * PYTHONPATH is set correctly
+#     * Python version matches AFL++ build (use same Python 3.x version)
+#     * No conflicting Python installations in PATH

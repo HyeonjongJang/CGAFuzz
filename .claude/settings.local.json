@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dos2unix:*)",
+      "Bash(./check_setup.sh:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
