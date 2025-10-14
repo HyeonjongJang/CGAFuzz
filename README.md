@@ -731,7 +731,7 @@ If you use RAGFuzz in your research, please cite:
   title = {RAGFuzz: RAG-Guided AFL++ Fuzzing Framework},
   author = {RAGFuzz Contributors},
   year = {2025},
-  url = {https://github.com/yourusername/ragfuzz}
+  url = {https://github.com/HyeonjongJang/ragfuzz}
 }
 ```
 
