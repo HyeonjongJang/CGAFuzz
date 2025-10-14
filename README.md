@@ -753,9 +753,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/ragfuzz/issues)
+- **Issues**: [GitHub Issues](https://github.com/HyeonjongJang/ragfuzz/issues)
 - **Documentation**: See `docs/` directory
-- **Email**: your.email@example.com
+- **Email**: lezelamu@naver.com
 
 ---
 
