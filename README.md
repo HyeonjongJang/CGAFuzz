@@ -1,17 +1,20 @@
-# RAGFuzz: RAG-Guided AFL++ Fuzzing Framework
+# CGAFuzz: Curriculum-Guided Adaptive Fuzzing Framework
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![AFL++](https://img.shields.io/badge/AFL++-4.0+-red.svg)](https://github.com/AFLplusplus/AFLplusplus)
 
-RAGFuzz is an advanced fuzzing framework that combines **AFL++** with **LLM-powered seed generation** and **adaptive mutation strategies** to improve code coverage and bug discovery in JSON parsers.
+CGAFuzz is an advanced fuzzing framework that combines **AFL++** with **curriculum learning**, **EMA-based adaptive mutation**, and optional **LLM-powered seed generation** to improve code coverage and bug discovery in structured input parsers (JSON, XML, etc.).
 
 ## Key Features
 
-- **Adaptive Mutation**: EMA-based operator scheduling that learns which mutations work best
-- **Curriculum Learning**: 3-phase progression (A→B→C) that starts safe and progressively adds complexity
-- **LLM-Powered Seeds**: Uses GPT-4/Claude to generate diverse, edge-case JSON inputs
-- **Plateau Detection**: Automatic detection of coverage stagnation with phase transitions
+- **Parse-Rate Driven Curriculum Learning**: Novel 3-phase progression (A→B→C) based on JSON validation success rate
+  - Phase A: Focuses on generating valid inputs when parse rate is low
+  - Phase B: Adds boundary testing as parse rate improves
+  - Phase C: Unleashes complex mutations for deep bug discovery
+- **EMA-Based Adaptive Mutation**: Lightweight, real-time operator scheduling that learns which mutations find new paths
+- **Plateau Detection**: Automatic detection of coverage stagnation with forced phase transitions
+- **Optional LLM Integration**: Uses GPT-4/Claude to generate diverse initial seeds (not required for core functionality)
 - **Multi-Target Support**: Pre-built harnesses for 4 popular JSON libraries
 
 ## Quick Start (15 Minutes)
@@ -23,7 +26,7 @@ cd AFLplusplus && make distrib -j$(nproc)
 export PATH="$HOME/AFLplusplus:$PATH"
 
 # 2. Install dependencies (2 min)
-cd /path/to/ragfuzz
+cd /path/to/cgafuzz
 pip install -r requirements.txt
 
 # 3. Verify setup (1 min)
@@ -57,36 +60,38 @@ export PYTHONPATH="$PWD"
 
 ## Architecture
 
-RAGFuzz extends AFL++ with three key components:
+CGAFuzz's core innovation is its **parse-rate driven curriculum learning** combined with lightweight adaptive scheduling. Unlike traditional coverage-based fuzzers, CGAFuzz optimizes for structured input validity first, then progressively adds complexity.
 
-### 1. Adaptive Mutator (`mutators/json_adapt.py`)
+### 1. Adaptive Mutator with Curriculum Learning (`mutators/json_adapt.py`)
 
-Implements a custom Python mutator for AFL++ with:
+The heart of CGAFuzz implements:
 - **13 specialized JSON operators** (flip_bool, num_boundary, deep_nest, utf8_edge, etc.)
-- **EMA-based scheduling** that adapts operator selection based on feedback
-- **Curriculum learning** with 3 phases:
-  - **Phase A** (parse rate < 50%): Safe operators only
-  - **Phase B** (parse rate ≥ 50%): Add boundary testing
-  - **Phase C** (parse rate ≥ 90%): Full operator set
+- **Parse-rate based phase transitions**:
+  - **Phase A** (parse rate < 50%): Safe operators to establish valid inputs
+  - **Phase B** (parse rate ≥ 50%): Boundary testing for edge cases
+  - **Phase C** (parse rate ≥ 90%): Full operator set for deep exploration
+- **EMA-based scheduling** (lighter than MOPT's PSO, faster than Thompson Sampling)
+  - Real-time adaptation to operator effectiveness
+  - ε-greedy exploration to prevent premature convergence
 
-### 2. LLM Seed Generator (`tools/rag_seedgen.py`)
+### 2. Optional LLM Seed Generator (`tools/rag_seedgen.py`)
 
-Generates intelligent test seeds using LLMs:
+Enhances initial corpus diversity (optional component):
 - Extracts keys/tokens from existing corpus
-- Calls OpenAI/Anthropic API to generate diverse JSON structures
+- Calls LLM API to generate diverse JSON structures
 - Validates generated JSONs against target harness
 - Builds enhanced AFL++ dictionaries automatically
 
 ### 3. Plateau Detector (`tools/phase_ctl.py`)
 
-Monitors fuzzing progress and triggers phase transitions:
+Monitors fuzzing progress and triggers adaptive responses:
 - Detects coverage stagnation using sliding window analysis
 - Forces curriculum progression when coverage plateaus
 - Resets EMA weights to escape local optima
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│                    RAGFuzz Pipeline                       │
+│                    CGAFuzz Pipeline                       │
 └──────────────────────────────────────────────────────────┘
                             ↓
         ┌───────────────────────────────────┐
@@ -159,20 +164,20 @@ afl-fuzz -h
 
 Using conda (recommended):
 ```bash
-conda create -n ragfuzz python=3.11 -y
-conda activate ragfuzz
+conda create -n cgafuzz python=3.11 -y
+conda activate cgafuzz
 ```
 
 Or using venv:
 ```bash
-python3 -m venv ~/.venvs/ragfuzz
-source ~/.venvs/ragfuzz/bin/activate
+python3 -m venv ~/.venvs/cgafuzz
+source ~/.venvs/cgafuzz/bin/activate
 ```
 
-### Install RAGFuzz
+### Install CGAFuzz
 
 ```bash
-cd /path/to/ragfuzz
+cd /path/to/cgafuzz
 pip install -r requirements.txt
 export PYTHONPATH="$PWD"
 ```
@@ -222,11 +227,11 @@ afl-fuzz -i corpus/json_seeds -o out/basic \
 Create LLM configuration:
 
 ```bash
-mkdir -p ~/.secrets ~/.config/ragfuzz
+mkdir -p ~/.secrets ~/.config/cgafuzz
 echo "sk-YOUR_OPENAI_KEY" > ~/.secrets/openai.key
 chmod 600 ~/.secrets/openai.key
 
-cat > ~/.config/ragfuzz/config.toml <<'EOF'
+cat > ~/.config/cgafuzz/config.toml <<'EOF'
 [llm]
 provider = "openai"
 model = "gpt-4o-mini"
@@ -245,7 +250,7 @@ EOF
 ```bash
 python3 tools/rag_seedgen.py \
     --bin ./targets/json/json_asan \
-    --config ~/.config/ragfuzz/config.toml \
+    --config ~/.config/cgafuzz/config.toml \
     -n 50
 ```
 
@@ -287,7 +292,7 @@ This script:
 1. Checks if LLM is configured (optional)
 2. Generates LLM seeds if configured
 3. Runs baseline AFL++ (no custom mutator)
-4. Runs LLM-enhanced RAGFuzz (adaptive mutator)
+4. Runs LLM-enhanced CGAFuzz (adaptive mutator)
 5. Collects and compares results
 6. Generates comparison report
 
@@ -420,7 +425,7 @@ _scheduler = EMAScheduler(
 
 ### LLM Configuration
 
-Edit `~/.config/ragfuzz/config.toml`:
+Edit `~/.config/cgafuzz/config.toml`:
 
 ```toml
 [llm]
@@ -452,27 +457,31 @@ python3 tools/phase_ctl.py \
 
 ### Expected Performance (10-minute experiment)
 
-| Metric | Baseline (AFL++) | LLM-Enhanced (RAGFuzz) | Improvement |
+| Metric | Baseline (AFL++) | LLM-Enhanced (CGAFuzz) | Improvement |
 |--------|------------------|------------------------|-------------|
 | **Paths Found** | 500-1,500 | 800-2,000 | +20-40% |
 | **Coverage** | 30-50% | 40-60% | +5-15% |
 | **Exec/sec** | 500-2,000 | 400-1,800 | -10-20% |
 | **Unique Crashes** | 0-5 | 0-10 | More diverse |
 
-### Why LLM-Enhanced Performs Better
+### Why Curriculum Learning Performs Better
 
-1. **Diverse Seeds**: LLM generates edge cases that humans might miss
+1. **Parse-Rate Driven Approach**: Unlike coverage-based fuzzers, CGAFuzz focuses on input validity first
+   - Phase A establishes a valid input baseline
+   - Phase B explores boundary conditions systematically
+   - Phase C unleashes complex mutations only when parser is robust
+   - This is especially effective for structured formats (JSON/XML/protocols)
+
+2. **Lightweight EMA Scheduling**: Faster adaptation than existing approaches
+   - Lighter computation than MOPT's Particle Swarm Optimization
+   - Faster response than Thompson Sampling
+   - Critical for high exec/sec fuzzing campaigns
+
+3. **Optional LLM Enhancement**: When used, provides diverse initial seeds
    - Deep nesting (100+ levels)
    - Boundary values (INT_MAX, NaN, -0)
    - Rare Unicode sequences (emoji, RTL, combining chars)
-
-2. **Smart Mutations**: Adaptive operator selection
-   - EMA scheduler learns which operators find new paths
-   - Phase transitions prevent getting stuck
-
-3. **Enhanced Dictionary**: LLM extracts domain-specific tokens
-   - API-specific keys (`"user_id"`, `"access_token"`)
-   - Format-specific values (`"2024-01-01T00:00:00Z"`)
+   - Domain-specific tokens for better dictionary
 
 ### Analyzing Results
 
@@ -524,7 +533,7 @@ afl-tmin -i crashes/id:000000,sig:06,* \
 ## Project Structure
 
 ```
-ragfuzz/
+cgafuzz/
 ├── corpus/
 │   ├── json_seeds/          # Initial seed corpus (45 files)
 │   ├── generated/           # LLM-generated seeds
@@ -689,7 +698,7 @@ afl-fuzz ... -t 100 ...  # Down from 200ms
 
 ```bash
 # Check config
-cat ~/.config/ragfuzz/config.toml
+cat ~/.config/cgafuzz/config.toml
 
 # Verify API key
 cat ~/.secrets/openai.key
@@ -722,16 +731,36 @@ Contributions welcome! Areas for improvement:
 
 ---
 
+## Research Contributions
+
+CGAFuzz's main contributions to the fuzzing research community:
+
+1. **Parse-Rate Driven Curriculum Learning**: Novel approach for structured input fuzzing
+   - Existing work (MOPT, AFLFast, AFLGo) focuses on coverage-based adaptation
+   - CGAFuzz uses validation success rate to guide phase transitions
+   - Particularly effective for JSON/XML/protocol parsers
+
+2. **Lightweight EMA-Based Scheduling**: Efficient alternative to existing schedulers
+   - Simpler than MOPT's PSO (Particle Swarm Optimization)
+   - Faster than bandit-based approaches (Thompson Sampling, SLOPT)
+   - Better suited for real-time, high-throughput fuzzing
+
+3. **Automatic Phase Transition Mechanism**: Combines curriculum learning with plateau detection
+   - Forced progression when coverage stagnates
+   - EMA weight reset to escape local optima
+   - Synergy between parse-rate phases and coverage monitoring
+
 ## Citation
 
-If you use RAGFuzz in your research, please cite:
+If you use CGAFuzz in your research, please cite:
 
 ```bibtex
-@software{ragfuzz2025,
-  title = {RAGFuzz: RAG-Guided AFL++ Fuzzing Framework},
-  author = {RAGFuzz Contributors},
+@software{cgafuzz2025,
+  title = {CGAFuzz: Curriculum-Guided Adaptive Fuzzing for Structured Inputs},
+  author = {CGAFuzz Contributors},
   year = {2025},
-  url = {https://github.com/HyeonjongJang/ragfuzz}
+  url = {https://github.com/hyeonjongjang/cgafuzz},
+  note = {Parse-rate driven phase transitions with EMA scheduling}
 }
 ```
 
@@ -746,14 +775,23 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 - **AFL++**: The best fuzzing tool out there ([AFLplusplus](https://github.com/AFLplusplus/AFLplusplus))
-- **OpenAI**: For GPT-4 and API access
-- **Anthropic**: For Claude and inspiring the name
+- **OpenAI & Anthropic**: For LLM APIs used in optional seed generation
+- **Prior work**: MOPT, AFLFast, AFLGo, Nautilus, and other adaptive fuzzing research that inspired this work
+
+## Project Name Note
+
+The name "CGAFuzz" is somewhat misleading - this project does **not** use RAG (Retrieval-Augmented Generation) technology. The core innovations are:
+- Parse-rate driven curriculum learning
+- EMA-based adaptive operator scheduling
+- Automatic phase transition mechanisms
+
+The optional LLM component uses simple prompting, not RAG. A more accurate name would be "CurriculumFuzz" or "AdaptiveFuzz", but we've kept the original name for continuity.
 
 ---
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/HyeonjongJang/ragfuzz/issues)
+- **Issues**: [GitHub Issues](https://github.com/hyeonjongjang/cgafuzz/issues)
 - **Documentation**: See `docs/` directory
 - **Email**: lezelamu@naver.com
 
@@ -766,4 +804,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ./run_comparative_experiment.sh 600
 ```
 
-Happy fuzzing! 🐛🔍
+Happy fuzzing! 
