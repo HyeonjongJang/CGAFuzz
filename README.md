@@ -93,7 +93,7 @@ Monitors fuzzing progress and triggers adaptive responses:
 ┌──────────────────────────────────────────────────────────┐
 │                    CGAFuzz Pipeline                       │
 └──────────────────────────────────────────────────────────┘
-                                                        ↓
+                            ↓
         ┌───────────────────────────────────┐
         │        AFL++ with Custom          │
         │       Adaptive Mutator            │
