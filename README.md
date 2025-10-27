@@ -93,20 +93,20 @@ Monitors fuzzing progress and triggers adaptive responses:
 ┌──────────────────────────────────────────────────────────┐
 │                    CGAFuzz Pipeline                       │
 └──────────────────────────────────────────────────────────┘
-                            ↓
-        ┌───────────────────────────────────┐
-        │  LLM Seed Generation (Optional)   │
-        │  • Extract corpus tokens          │
-        │  • Generate diverse JSONs         │
-        │  • Build enhanced dictionary      │
-        └───────────────────────────────────┘
-                            ↓
+                                                        ↓
         ┌───────────────────────────────────┐
         │        AFL++ with Custom          │
         │       Adaptive Mutator            │
         │  • Phase A: Safe operators        │
         │  • Phase B: Boundary testing      │
         │  • Phase C: Complex mutations     │
+        └───────────────────────────────────┘
+                            ↓
+        ┌───────────────────────────────────┐
+        │  LLM Seed Generation (Optional)   │
+        │  • Extract corpus tokens          │
+        │  • Generate diverse JSONs         │
+        │  • Build enhanced dictionary      │
         └───────────────────────────────────┘
                             ↓
         ┌───────────────────────────────────┐
@@ -757,7 +757,7 @@ If you use CGAFuzz in your research, please cite:
 ```bibtex
 @software{cgafuzz2025,
   title = {CGAFuzz: Curriculum-Guided Adaptive Fuzzing for Structured Inputs},
-  author = {CGAFuzz Contributors},
+  author = {HYUNJONG JANG},
   year = {2025},
   url = {https://github.com/hyeonjongjang/cgafuzz},
   note = {Parse-rate driven phase transitions with EMA scheduling}
@@ -778,12 +778,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **OpenAI & Anthropic**: For LLM APIs used in optional seed generation
 - **Prior work**: MOPT, AFLFast, AFLGo, Nautilus, and other adaptive fuzzing research that inspired this work
 
-## Project Name Note
-
-The name "CGAFuzz" is somewhat misleading - this project does **not** use RAG (Retrieval-Augmented Generation) technology. The core innovations are:
-- Parse-rate driven curriculum learning
-- EMA-based adaptive operator scheduling
-- Automatic phase transition mechanisms
 
 The optional LLM component uses simple prompting, not RAG. A more accurate name would be "CurriculumFuzz" or "AdaptiveFuzz", but we've kept the original name for continuity.
 
