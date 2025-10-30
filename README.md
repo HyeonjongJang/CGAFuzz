@@ -526,26 +526,6 @@ Based on empirical evaluation, CGAFuzz demonstrates four key advantages:
    - Rare Unicode sequences (emoji, RTL, combining chars)
    - Domain-specific tokens for better dictionary
 
-### Visualization Results
-
-Comprehensive visualizations are available in the `10_11 new/` directory:
-
-**Comparison Results** (`cgafuzz_realistic_results/`):
-- `01_coverage_comparison.png` - Code coverage growth over 24 hours
-- `02_paths_discovery.png` - Total paths discovered over time
-- `03_execution_speed.png` - Execution speed comparison
-- `04_summary_dashboard.png` - 4-panel comprehensive dashboard
-- `05_efficiency_comparison.png` - Paths per million executions
-- `REALISTIC_REPORT.txt` - Detailed metrics summary
-
-**Advantages Visualizations** (`cgafuzz_advantages_realistic/`):
-- `advantage_01_time_to_milestone.png` - Early-stage coverage growth
-- `advantage_02_curriculum_phases.png` - 3-phase curriculum visualization
-- `advantage_03_exploration_depth.png` - Maximum exploration depth
-- `advantage_04_efficiency_metrics.png` - Coverage per execution analysis
-- `advantage_05_summary_infographic.png` - Key advantages summary
-- `ADVANTAGES_SUMMARY.txt` - Detailed advantages explanation
-
 All visualizations are available in both PNG (300 DPI) and PDF (vector) formats.
 
 ### Analyzing Results
