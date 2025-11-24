@@ -1,4 +1,6 @@
 # CGAFuzz: Curriculum-Guided Adaptive Fuzzing Framework
+[250908_한국정보보호학회경진대회_포스터수정0911 (6).pdf](https://github.com/user-attachments/files/23723292/250908_._.0911.6.pdf)
+Excellence Award
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
