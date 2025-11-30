@@ -1,12 +1,21 @@
 # CGAFuzz: Curriculum-Guided Adaptive Fuzzing Framework
-[250908_한국정보보호학회경진대회_포스터수정0911 (6).pdf](https://github.com/user-attachments/files/23723292/250908_._.0911.6.pdf)
-Excellence Award
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![AFL++](https://img.shields.io/badge/AFL++-4.0+-red.svg)](https://github.com/AFLplusplus/AFLplusplus)
 
 CGAFuzz is an advanced fuzzing framework that combines **AFL++** with **curriculum learning**, **EMA-based adaptive mutation**, and optional **LLM-powered seed generation** to improve code coverage and bug discovery in structured input parsers (JSON, XML, etc.).
+
+<img src="https://github.com/user-attachments/assets/e3a719b6-4064-4247-9472-871d5cae388b" width="300" height="500">
+<br/>
+
+
+# 🏆🥉 Prize
+<img src="https://github.com/user-attachments/assets/705b4676-34be-4643-bb1e-0776efb9d034" width=500 height=500>
+
+# ✨ Team
+- **Leader:** Hyeonjong Jang - M.S. Student, Department of Artificial Intelligence, Kyung Hee University
+- **Member:** Jaejoon Choi - M.S. Student, Department of Industrial and Management System Engineering, Kyung Hee University
+<br/><br/>
 
 ## Key Features
 
